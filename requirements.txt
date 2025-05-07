@@ -4,3 +4,4 @@ scikit-learn==1.6.1
 boto3==1.38.7
 numpy==2.2.5
 scipy==1.15.2
+matplotlib==3.10.1
