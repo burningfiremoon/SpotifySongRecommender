@@ -103,8 +103,6 @@ def get_features():
 
     for j in range(0, 100, 50):
         batchIDs = songIDs[j:j+50]
-        print(f"This is j: {j}")
-        print(batchIDs)
         tracks = getTracks(batchIDs)
         for track in tracks:
             songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
@@ -112,10 +110,10 @@ def get_features():
             print(f"{track['name']}: {track['popularity']}")
 
     # save songData
-    songData.head(50)
+    print(songData.head(100))
 
     # End of test ========================
-    return
+    return 'FINISHED'
 
 @app.route('/logout')
 def logout():
