@@ -33,3 +33,7 @@ def get_track_popularity(track_id: str) -> int:
     }
 
     response = requests.get(url, headers=headers)
+
+def save_data_frame(song_data, filename="song_data.csv"):
+    song_data.to_csv(filename, index=False)
+    print(f"Saved file as {filename}")
