@@ -81,38 +81,48 @@ def get_features():
 
     BATCHSIZE = 100000
 
-    # while ((i+BATCHSIZE) <= songIDs.shape[0]):
-    #     # df.loc[df['Name'] == 'Bob', 'Age'] = 31
+    while ((i+BATCHSIZE) <= songIDs.shape[0]):
+        # df.loc[df['Name'] == 'Bob', 'Age'] = 31
 
-    #     # Take 100000 of songData
-    #     workingFrame = songIDs[i:i+BATCHSIZE]
+        # Take 100000 of songData
+        workingFrame = songIDs[i:i+BATCHSIZE]
 
-    #     # 100000 at a time
-    #     for j in range(0, BATCHSIZE-50, 50):
-    #         batchIDs = songIDs[j:j+50]
-    #         tracks = getTracks(batchIDs)
-    #         for track in tracks:
-    #             songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
-    #             songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+        # 100000 at a time
+        for j in range(0, BATCHSIZE-50, 50):
+            batchIDs = songIDs[j:j+50]
+            tracks = getTracks(batchIDs)
+            for track in tracks:
+                songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
+                songData.loc[songData['id'] == track['id'], 'name'] = track['name']
 
-    #     # save songData
+        # save songData
+        print(f"Done Batch {i}")
+        i += BATCHSIZE
+    
+    # Start of last 4025
+    print("starting last 4025")
 
-    # Start of test ===============
-
-    workingFrame = songIDs[i:i+100]
-
-    for j in range(0, 100, 50):
+    for j in range(0, 4000-50, 50):
         batchIDs = songIDs[j:j+50]
         tracks = getTracks(batchIDs)
         for track in tracks:
             songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
             songData.loc[songData['id'] == track['id'], 'name'] = track['name']
-            print(f"{track['name']}: {track['popularity']}")
 
     # save songData
-    print(songData.head(100))
+    i += 4000
 
-    # End of test ========================
+    print("last 25")
+
+    batchIDs = songIDs[i:i+25]
+    tracks = getTracks(batchIDs)
+    for track in tracks:
+        songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
+        songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+
+    # save songData
+
+
     return 'FINISHED'
 
 @app.route('/logout')
