@@ -1,15 +1,6 @@
 import time
 from sklearn.cluster import KMeans
 import joblib
-import os
-import requests
-from dotenv import load_dotenv
-load_dotenv()
-
-redirect_uri = "https://localhost:8888/callback"
-
-clientID = os.getenv('CLIENT_ID')
-clientSecret = os.getenv('CLIENT_SECRET')
 
 def generate_file_name(model: KMeans, directory: str = "./models") -> str:
     timeStamp = time.strftime("%Y%m%d-%H%M")
@@ -25,11 +16,3 @@ def dump_model(model: KMeans) -> str:
 
 def load_model(directory: str) -> KMeans:
     return joblib.load(directory)
-
-def get_track_popularity(track_id: str) -> int:
-    url = f"https://api.spotify.com/v1/tracks/{track_id}"
-    headers = {
-        "Authorization": f"Bearer {access_token}"
-    }
-
-    response = requests.get(url, headers=headers)
