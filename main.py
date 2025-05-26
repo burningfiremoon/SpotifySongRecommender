@@ -5,6 +5,7 @@ load_dotenv()
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth 
 from spotipy.cache_handler import FlaskSessionCacheHandler
+import utilities
 
 #pandas imports
 import pandas as pd
@@ -77,32 +78,18 @@ def callback():
 
 @app.route('/get_features')
 def get_features():
-    i = 0
+    i = 200
+    get_token()
 
     BATCHSIZE = 100000
 
-    while ((i+BATCHSIZE) <= songIDs.shape[0]):
-        # df.loc[df['Name'] == 'Bob', 'Age'] = 31
 
-        # Take 100000 of songData
-        workingFrame = songIDs[i:i+BATCHSIZE]
+    # Start of mini test ==============================================
+    testBatchSize = 1000
+    workingFrame = songIDs[i:i+testBatchSize]
 
-        # 100000 at a time
-        for j in range(0, BATCHSIZE-50, 50):
-            batchIDs = songIDs[j:j+50]
-            tracks = getTracks(batchIDs)
-            for track in tracks:
-                songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
-                songData.loc[songData['id'] == track['id'], 'name'] = track['name']
-
-        # save songData
-        print(f"Done Batch {i}")
-        i += BATCHSIZE
-    
-    # Start of last 4025
-    print("starting last 4025")
-
-    for j in range(0, 4000-50, 50):
+    # 100000 at a time
+    for j in range(0, testBatchSize-50, 50):
         batchIDs = songIDs[j:j+50]
         tracks = getTracks(batchIDs)
         for track in tracks:
@@ -110,18 +97,57 @@ def get_features():
             songData.loc[songData['id'] == track['id'], 'name'] = track['name']
 
     # save songData
-    i += 4000
+    i += 200
+    print(f"Done Batch {i/100000}")
+    print(f"this is i: {i}\n")
+    utilities.dump_to_csv(fileName=(f"songData_{str(i/100000)}"), df=songData)
+    # End of mini test ==============================================
 
-    print("last 25")
+    # while ((i+BATCHSIZE) <= songIDs.shape[0]):
+    #     get_token()
+    #     # df.loc[df['Name'] == 'Bob', 'Age'] = 31
 
-    batchIDs = songIDs[i:i+25]
-    tracks = getTracks(batchIDs)
-    for track in tracks:
-        songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
-        songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+    #     # Take 100000 of songData
+    #     workingFrame = songIDs[i:i+BATCHSIZE]
 
-    # save songData
+    #     # 100000 at a time
+    #     for j in range(0, BATCHSIZE-50, 50):
+    #         batchIDs = songIDs[j:j+50]
+    #         tracks = getTracks(batchIDs)
+    #         for track in tracks:
+    #             songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
+    #             songData.loc[songData['id'] == track['id'], 'name'] = track['name']
 
+    #     # save songData
+    #     i += BATCHSIZE
+    #     print(f"Done Batch {i/100000}")
+    #     utilities.dump_to_csv(fileName=(f"songData_{str(i/100000)}"), df=songData)
+    
+    # # Start of last 4025
+    # print("starting last 4025")
+
+    # for j in range(0, 4000-50, 50):
+    #     batchIDs = songIDs[j:j+50]
+    #     tracks = getTracks(batchIDs)
+    #     for track in tracks:
+    #         songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
+    #         songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+
+    # # save songData
+    # i += 4000
+    # utilities.dump_to_csv(fileName=(f"songData_{str(i/100000)}"), df=songData)
+
+    # print("last 25")
+
+    # batchIDs = songIDs[i:i+25]
+    # tracks = getTracks(batchIDs)
+    # for track in tracks:
+    #     songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
+    #     songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+
+    # # save songData
+    # i += 25
+    # utilities.dump_to_csv(fileName=(f"songData_{str(i/100000)}"), df=songData)
 
     return 'FINISHED'
 
