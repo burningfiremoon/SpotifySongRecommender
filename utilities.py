@@ -37,3 +37,6 @@ def get_track_popularity(track_id: str) -> int:
 
 def dump_to_csv(fileName, df):
     df.to_csv(f"models\{fileName}", index=False)
+
+def dump_to_csv(fileName, df):
+    df.to_csv(f"models\{fileName}", index=False)
