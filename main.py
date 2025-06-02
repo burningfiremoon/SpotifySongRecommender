@@ -10,9 +10,11 @@ import utilities
 #pandas imports
 import pandas as pd
 
-songData = pd.read_csv('models/tracks_features.csv')
+tempi = 575000
+
+# songData = pd.read_csv(f"models/tracks_features.csv")
+songData = pd.read_csv(f"models/songData_{str(tempi/100000)}")
 songIDs = songData['id'] # name is not needed
-songData['popularity'] = None
 
 # End of pandas
 
@@ -78,28 +80,31 @@ def callback():
 
 @app.route('/get_features')
 def get_features():
-    i = 200
+    i = tempi
     get_token()
 
     BATCHSIZE = 100000
 
 
     # Start of mini test ==============================================
-    testBatchSize = 1000
+    testBatchSize = 15000
+    z = 0
     workingFrame = songIDs[i:i+testBatchSize]
 
     # 100000 at a time
-    for j in range(0, testBatchSize-50, 50):
-        batchIDs = songIDs[j:j+50]
+    for j in range(0, testBatchSize, 50):
+        batchIDs = workingFrame[j:j+50]
         tracks = getTracks(batchIDs)
         for track in tracks:
             songData.loc[songData['id'] == track['id'], 'popularity'] = track['popularity']
             songData.loc[songData['id'] == track['id'], 'name'] = track['name']
+            z += 1
 
     # save songData
-    i += 200
+    i += testBatchSize
     print(f"Done Batch {i/100000}")
     print(f"this is i: {i}\n")
+    print(f"this is z: {z}")
     utilities.dump_to_csv(fileName=(f"songData_{str(i/100000)}"), df=songData)
     # End of mini test ==============================================
 
