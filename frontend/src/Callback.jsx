@@ -5,8 +5,13 @@ const Callback = () => {
     useEffect(() => {
         const code = new URLSearchParams(window.location.search).get('code')
 
-        if (!code) {
+        if (!code && !localStorage.getItem('spotify_access_token')) {
             setMessage("No Code in URL. Authorization failed.");
+            return;
+        }
+
+         if(localStorage.getItem('spotify_access_token')) {
+            setMessage("Already logged In")
             return;
         }
 
@@ -22,6 +27,8 @@ const Callback = () => {
                 if (data.access_token) {
                     localStorage.setItem('spotify_access_token', data.access_token);
                     setMessage('Logged In! Token Stored.');
+
+                    window.history.replaceState(null, "", "/");
                 } else {
                     console.error(data);
                     setMessage('Failed to exchange token.');
