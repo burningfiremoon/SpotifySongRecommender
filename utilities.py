@@ -18,3 +18,4 @@ def dump_model(model: KMeans) -> str:
 def load_model(directory: str) -> KMeans:
     return joblib.load(directory)
 
+# temp
