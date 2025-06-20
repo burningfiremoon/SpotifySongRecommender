@@ -5,6 +5,7 @@ import os
 import requests
 from dotenv import load_dotenv
 import pandas as pd
+import utilities
 load_dotenv()
 
 redirect_uri = "https://localhost:8888/callback"
@@ -37,3 +38,20 @@ def get_track_popularity(track_id: str) -> int:
 
 def dump_to_csv(fileName, df):
     df.to_csv(f"models\{fileName}", index=False)
+
+
+"""
+Adding csv2 to csv1
+
+"""
+def concatinate_files(csv1: str, csv2: str):
+    mainFile = pd.read_csv(csv1)
+    secondFile= pd.read_csv(csv2)
+
+    secondFile = secondFile.dropna()
+    secondFile = secondFile[['id', 'name', 'popularity']]
+
+    for index, row in secondFile.iterrows():
+        mainFile.loc[mainFile['id'] == row['id'], 'popularity'] = row['popularity']
+    
+    utilities.dump_to_csv(fileName = "mainFile", df = mainFile)
