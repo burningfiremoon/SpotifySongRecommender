@@ -10,8 +10,8 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app) # Allow requests from React dev server
 
-JADCLIENT_ID = os.getenv('CLIENT_ID')
-JADCLIENT_SECRET = os.getenv('CLIENT_SECRET')
+CLIENT_ID = os.getenv('JADCLIENT_ID')
+CLIENT_SECRET = os.getenv('JADCLIENT_SECRET')
 REDIRECT_URI = "http://127.0.0.1:5173/callback"
 
 @app.route("/")
