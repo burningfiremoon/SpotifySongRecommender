@@ -7,7 +7,7 @@ function Playlist() {
 
     useEffect(() => {
         console.log("Getting token");
-        const storedToken = localStorage.getItem("spotify_access_token");
+        const storedToken = sessionStorage.getItem("spotify_access_token");
 
         if (storedToken) {
             setToken(storedToken);
