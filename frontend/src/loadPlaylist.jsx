@@ -22,7 +22,7 @@ function LoadPlaylist({token}) {
     console.log("This is Token:", token);
 
     const ids = trackIds.map((song) => song.id); // this extracts just ids
-    const idsParam = ids.slice(0, 20).join(","); // joins them together
+    const idsParam = ids.slice(0, 49).join(","); // joins them together
 
     fetch(`https://api.spotify.com/v1/tracks?ids=${idsParam}`,{
       headers: {
