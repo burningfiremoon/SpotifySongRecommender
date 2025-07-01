@@ -19,7 +19,6 @@ function Playlist() {
 
   return (
     <div>
-        <h3>Loading playlist</h3>
         <LoadPlaylist token={token}/>
     </div>
 
