@@ -5,7 +5,8 @@ import './App.css'
 import LoginButton from './LoginButton'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Callback from './Callback'
-import Playlist from './Pages/Playlist'
+import CreatePlaylist from './Pages/CreatePlaylist'
+import UserPlaylists from './Pages/UserPlaylists'
 
 function App() {
 
@@ -15,7 +16,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginButton/>}/>
           <Route path='/callback' element={<Callback/>} />
-          <Route path="/playlist" element={<Playlist/>}/>
+          <Route path="/playlist" element={<CreatePlaylist/>}/>
+          <Route path="/UserPlaylists" element={<UserPlaylists/>}/>
         </Routes>
       </Router>
     </>

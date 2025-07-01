@@ -5,7 +5,6 @@ function LoadPlaylist({token}) {
   const [trackIds, setTrackIds] = useState([]);
 
   useEffect(() =>{
-    console.log("Loading");
     fetch("../public/first_100_songs_2.json")
     .then((res) => res.json())
     .then((data) => {
@@ -18,8 +17,6 @@ function LoadPlaylist({token}) {
   // Extraction
   useEffect(() => {
     if (trackIds.length === 0 || !token) return;
-
-    console.log("This is Token:", token);
 
     const ids = trackIds.map((song) => song.id); // this extracts just ids
     const idsParam = ids.slice(0, 49).join(","); // joins them together

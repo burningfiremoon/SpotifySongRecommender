@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import LoadPlaylist from '../loadPlaylist'
 
-function Playlist() {
+function CreatePlaylist() {
     const [token, setToken] = useState("");
 
     useEffect(() => {
@@ -25,4 +25,4 @@ function Playlist() {
   )
 }
 
-export default Playlist
+export default CreatePlaylist
