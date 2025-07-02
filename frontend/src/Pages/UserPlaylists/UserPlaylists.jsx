@@ -1,9 +1,10 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
+import './UserPlaylists.css'
 
 function UserPlaylists() {
     const [playlists, setPlaylists] = useState([]);
-    const [userID, setUserID] = useState([]);
+    const [selectedPlaylists, setSelectedPlaylists] = useState([]);
     const [token, setToken] = useState("");
 
     // Getting token
@@ -19,27 +20,13 @@ function UserPlaylists() {
         }
     }, []);
 
-    // // Getting user's information
-    // useEffect(() =>{
-    //     if(!token) return;
-    //     console.log(`This is the token: ${token}`)
-    //     fetch('https://api.spotify.com/v1/me',{
-    //         headers:{
-    //             Authorization: `Bearer ${token}`,
-    //         },
-    //     })
-    //     .then((res) => res.json())
-    //     .then((data) => setUserID(data.id))
-    //     .catch((err) => console.error("Spotify API error:", err)); // this doesn't catch spotify error, need to redo
-    // }, [token]);
-
     // Getting user's playlists
     useEffect(() =>{
         if(!token){
             console.log("no Token");
             return;
         }
-        fetch(`https://api.spotify.com/v1/me/playlists`,{
+        fetch(`https://api.spotify.com/v1/me/playlists?limit=50`,{
             headers:{
                 Authorization: `Bearer ${token}`,
             },
@@ -48,20 +35,37 @@ function UserPlaylists() {
         .then((data) => setPlaylists(data.items));
     }, [token]);
 
+    const selectPlaylist = (playlist) =>{
+        setPlaylists(playlists.filter(p => p.id !== playlist.id));
+        setSelectedPlaylists([...selectedPlaylists, playlist]);
+    }
+
+    const unselectPlaylist = (playlist) =>{
+        setSelectedPlaylists(selectedPlaylists.filter(p => p.id !== playlist.id));
+        setPlaylists([...playlists, playlist]);
+    }
+
   return (
     <>
         <h2>Loaded Playlists</h2>
-        {playlists.length === 0 ? (
-            <p>Loading...</p>
-        ) : (
+        <div>
             <ul>
                 {playlists.map((playlist)=>(
                     <li key={playlist.id}>
                         <strong>{playlist.name}</strong>
+                        <button onClick={() => selectPlaylist(playlist)}>Add Button</button>
                     </li>
                 ))}
             </ul>
-        )}
+            <ul>
+                {selectedPlaylists.map((playlist)=>(
+                    <li key={playlist.id}>
+                        <strong>{playlist.name}</strong>
+                        <button onClick={() => unselectPlaylist(playlist)}>Minus Button</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
     </>
   );
 }
