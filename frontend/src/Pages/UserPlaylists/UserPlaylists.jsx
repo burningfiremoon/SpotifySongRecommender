@@ -1,11 +1,14 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import './UserPlaylists.css'
+import ButtonLink from '../../Componenets/ButtonLink';
+import { Route } from 'react-router-dom';
 
 function UserPlaylists() {
     const [playlists, setPlaylists] = useState([]);
     const [selectedPlaylists, setSelectedPlaylists] = useState([]);
     const [token, setToken] = useState("");
+    const [tracks, setTracks] = useState([]);
 
     // Getting token
     useEffect(() => {
@@ -45,6 +48,30 @@ function UserPlaylists() {
         setPlaylists([...playlists, playlist]);
     }
 
+    const generateJson = async (playlists, _token = token) => {
+        try {
+            const allTracks = await Promise.all(
+                playlists.map(async (playlist) =>{
+                    const res = await fetch(
+                        `https://api.spotify.com/v1/playlists/${playlist.id}/tracks?fields=total,limit,offset,items(track(id,name,popularity))`,
+                        {headers:{
+                            Authorization: `Bearer ${_token}`,
+                        },
+                    }
+                    );
+                    const data = await res.json();
+                    return {
+                        tracks: data.items.map((item) => item.track),
+                    };
+                })
+            );
+            console.log("All tracks:", allTracks)
+        } catch (err){
+            console.error("Error generating playlist JSON:", err);
+        };
+        
+    }
+
   return (
     <>
         <h2>Loaded Playlists</h2>
@@ -61,11 +88,13 @@ function UserPlaylists() {
                 {selectedPlaylists.map((playlist)=>(
                     <li key={playlist.id}>
                         <strong>{playlist.name}</strong>
+                        <p>{playlist.id}</p>
                         <button onClick={() => unselectPlaylist(playlist)}>Minus Button</button>
                     </li>
                 ))}
             </ul>
         </div>
+        <ButtonLink route={'/loading'} onClick={() => generateJson(selectedPlaylists)}>Generate</ButtonLink>
     </>
   );
 }

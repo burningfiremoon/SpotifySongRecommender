@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Callback from './Callback'
 import CreatePlaylist from './Pages/CreatePlaylist'
 import UserPlaylists from './Pages/UserPlaylists/UserPlaylists'
+import Loading from './Pages/Loading'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
           <Route path='/callback' element={<Callback/>} />
           <Route path="/playlist" element={<CreatePlaylist/>}/>
           <Route path="/UserPlaylists" element={<UserPlaylists/>}/>
+          <Route path='/loading' element={<Loading/>}/>
         </Routes>
       </Router>
     </>
