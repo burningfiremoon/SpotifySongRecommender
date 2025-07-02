@@ -34,7 +34,8 @@ function UserPlaylists() {
 
     // Getting user's playlists
     useEffect(() =>{
-        fetch(`https://api.spotify.com/v1/users/${userID}/playlists?limit=50`,{
+        console.log(`This is userID: ${userID}`)
+        fetch(`https://api.spotify.com/v1/users/${userID}/playlists`,{
             headers:{
                 Authorization: `Bearer ${token}`,
             },
