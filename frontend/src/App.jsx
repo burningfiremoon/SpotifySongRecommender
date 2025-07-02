@@ -6,7 +6,7 @@ import LoginButton from './LoginButton'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Callback from './Callback'
 import CreatePlaylist from './Pages/CreatePlaylist'
-import UserPlaylists from './Pages/UserPlaylists'
+import UserPlaylists from './Pages/UserPlaylists/UserPlaylists'
 
 function App() {
 

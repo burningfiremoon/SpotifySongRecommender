@@ -1,0 +1,15 @@
+* {
+    box-sizing:border-box;
+}
+
+.unselectedPlaylists .selectedPlaylists {
+    float: left;
+    width: 50%;
+    padding: 10px;
+}
+
+.UserPlaylists:after{
+    content: "";
+    display: table;
+    clear: both;
+}

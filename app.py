@@ -12,6 +12,8 @@ CORS(app) # Allow requests from React dev server
 
 CLIENT_ID = os.getenv('JADCLIENT_ID')
 CLIENT_SECRET = os.getenv('JADCLIENT_SECRET')
+# CLIENT_ID = os.getenv('CHARLESCLIENT_ID')
+# CLIENT_SECRET = os.getenv('CHARLESCLIENT_SECRET')
 REDIRECT_URI = "http://127.0.0.1:5173/callback"
 MLFLOW_TRACKING_URI="http://ec2-3-148-231-10.us-east-2.compute.amazonaws.com:5000/"
 
