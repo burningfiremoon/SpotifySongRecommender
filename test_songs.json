@@ -1,0 +1,86 @@
+[
+  {
+    "song_id": "68657172cda7042e29cdad27",
+    "tempo": 222.938,
+    "loudness": -31.895,
+    "energy": 0.51,
+    "danceability": 0.657,
+    "liveness": 0.032,
+    "speechiness": 0.03,
+    "acousticness": 0.234,
+    "instrumentalness": 0.731,
+    "valence": 0.186
+  },
+  {
+    "song_id": "68657172f73be2da51be5024",
+    "tempo": 89.227,
+    "loudness": -51.394,
+    "energy": 0.405,
+    "danceability": 0.515,
+    "liveness": 0.809,
+    "speechiness": 0.719,
+    "acousticness": 0.0152,
+    "instrumentalness": 0.036,
+    "valence": 0.78
+  },
+  {
+    "song_id": "68657172171b1d3a68fc8f4a",
+    "tempo": 71.548,
+    "loudness": -7.989,
+    "energy": 0.025,
+    "danceability": 0.733,
+    "liveness": 0.016,
+    "speechiness": 0.6722,
+    "acousticness": 0.5509,
+    "instrumentalness": 0.14,
+    "valence": 0.244
+  },
+  {
+    "song_id": "68657172258090583f6f66cd",
+    "tempo": 61.038,
+    "loudness": -2.58,
+    "energy": 0.632,
+    "danceability": 0.319,
+    "liveness": 0.96,
+    "speechiness": 0.7827,
+    "acousticness": 0.848,
+    "instrumentalness": 0.526,
+    "valence": 0.77
+  },
+  {
+    "song_id": "68657172fb62bced562af0f0",
+    "tempo": 186.53,
+    "loudness": -6.948,
+    "energy": 0.602,
+    "danceability": 0.008,
+    "liveness": 0.603,
+    "speechiness": 0.3343,
+    "acousticness": 0.573,
+    "instrumentalness": 0.875,
+    "valence": 0.863
+  },
+  {
+    "song_id": "6865717297a890afe0c73dd3",
+    "tempo": 99.132,
+    "loudness": -8.629,
+    "energy": 0.915,
+    "danceability": 0.67,
+    "liveness": 0.783,
+    "speechiness": 0.2766,
+    "acousticness": 0.5999,
+    "instrumentalness": 0.376,
+    "valence": 0.073
+  },
+  {
+    "song_id": "686571720bb810fae061525e",
+    "tempo": 180.665,
+    "loudness": 3.154,
+    "energy": 0.054,
+    "danceability": 0.607,
+    "liveness": 0.339,
+    "speechiness": 0.9284,
+    "acousticness": 0.3172,
+    "instrumentalness": 0.412,
+    "valence": 0.769
+  }
+]
