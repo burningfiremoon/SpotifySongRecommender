@@ -19,30 +19,34 @@ function UserPlaylists() {
         }
     }, []);
 
-    // Getting user's information
-    useEffect(() =>{
-        if(!token) return;
-        fetch('https://api.spotify.com/v1/me',{
-            headers:{
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        .then((res) => res.json())
-        .then((data) => setUserID(data.id))
-        .catch((err) => console.error("Spotify API error:", err)); // this doesn't catch spotify error, need to redo
-    }, [token]);
+    // // Getting user's information
+    // useEffect(() =>{
+    //     if(!token) return;
+    //     console.log(`This is the token: ${token}`)
+    //     fetch('https://api.spotify.com/v1/me',{
+    //         headers:{
+    //             Authorization: `Bearer ${token}`,
+    //         },
+    //     })
+    //     .then((res) => res.json())
+    //     .then((data) => setUserID(data.id))
+    //     .catch((err) => console.error("Spotify API error:", err)); // this doesn't catch spotify error, need to redo
+    // }, [token]);
 
     // Getting user's playlists
     useEffect(() =>{
-        console.log(`This is userID: ${userID}`)
-        fetch(`https://api.spotify.com/v1/users/${userID}/playlists`,{
+        if(!token){
+            console.log("no Token");
+            return;
+        }
+        fetch(`https://api.spotify.com/v1/me/playlists`,{
             headers:{
                 Authorization: `Bearer ${token}`,
             },
         })
         .then((res) => res.json())
         .then((data) => setPlaylists(data.items));
-    },[userID, token]);
+    }, [token]);
 
   return (
     <>
