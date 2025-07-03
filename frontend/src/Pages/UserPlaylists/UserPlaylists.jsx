@@ -49,11 +49,13 @@ function UserPlaylists() {
     }
 
     const generateJson = async (playlists, _token = token) => {
+
+        // All song Ids and popularity is generated and stored
         try {
             const allTracks = await Promise.all(
                 playlists.map(async (playlist) =>{
                     const res = await fetch(
-                        `https://api.spotify.com/v1/playlists/${playlist.id}/tracks?fields=total,limit,offset,items(track(id,name,popularity))`,
+                        `https://api.spotify.com/v1/playlists/${playlist.id}/tracks?fields=total,limit,offset,items(track(id,popularity))`,
                         {headers:{
                             Authorization: `Bearer ${_token}`,
                         },
@@ -70,6 +72,7 @@ function UserPlaylists() {
             console.error("Error generating playlist JSON:", err);
         };
         
+        // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
     }
 
   return (
