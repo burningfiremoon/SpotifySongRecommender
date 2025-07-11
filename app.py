@@ -4,7 +4,9 @@ import requests
 import os
 from dotenv import load_dotenv
 import urllib.parse
-
+import mlflow
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 load_dotenv()
 
 app = Flask(__name__)
@@ -16,6 +18,7 @@ CLIENT_SECRET = os.getenv('JADCLIENT_SECRET')
 # CLIENT_SECRET = os.getenv('CHARLESCLIENT_SECRET')
 REDIRECT_URI = "http://127.0.0.1:5173/callback"
 MLFLOW_TRACKING_URI="http://ec2-3-148-231-10.us-east-2.compute.amazonaws.com:5000/"
+LATEST_MINIBATCH_KMEANS_MODEL = '280ab65dc8e0410ab88d110d5b010100'
 
 @app.route("/")
 def home():
@@ -51,7 +54,35 @@ def exchange_token():
 
 @app.route("/generate", methods=['POST'])
 def generate_playlist():
-    data = request.get_json()
+    try:
+        # Get data from frontend
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No Data Provided"}), 400
+        
+        # Convert JSON to data frame
+        df = pd.DataFrame(data)
+        features = [
+            'tempo', 'loudness', 'energy', 'danceability', 'liveness',
+            'speechiness', 'acousticness', 'instrumentalness', 'valence'
+        ]
+        X = df[features]
+
+        # Load model from MLflow
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        model_uri = "runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
+        model = mlflow.sklearn.load_model(model_uri)
+
+        # Average and Scale X
+        scaler = StandardScaler()
+        X_average = X.mean().to_frame().T
+
+        prediction = model.predict(X_average)
+
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
     
 
 
