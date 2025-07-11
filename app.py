@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 import urllib.parse
 import mlflow
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+import mysql.connector
+from mysql.connector import errorcode
+from sklearn.pipeline import Pipeline
 load_dotenv()
 
 app = Flask(__name__)
@@ -60,6 +62,8 @@ def generate_playlist():
         if not data:
             return jsonify({"error": "No Data Provided"}), 400
         
+        token = data.get("token")
+        
         # Convert JSON to data frame
         df = pd.DataFrame(data)
         features = [
@@ -69,22 +73,75 @@ def generate_playlist():
         X = df[features]
 
         # Load model from MLflow
-        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-        model_uri = "runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
-        model = mlflow.sklearn.load_model(model_uri)
+        model = get_latest_model()
 
-        # Average and Scale X
-        scaler = StandardScaler()
+        # Average the features of user's songs
         X_average = X.mean().to_frame().T
 
-        prediction = model.predict(X_average)
+        cluster_index = int(model.predict(X_average)[0])
 
+        # mySQL
+        SQLid = os.getenv("SQL_ID")
+        SQLpassword = os.getenv("SQL_PASSWORD")
+
+        try:
+            cnx = mysql.connector.connect(
+            user = SQLid,
+            password = SQLpassword,
+            host = 'trackdatabase.cfgs6eaksjht.ca-central-1.rds.amazonaws.com',
+            database = 'Tracks_Database',
+            port = 3306
+        )
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                jsonify({"error": "Something is wrong with user name and password"}), 500
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                jsonify({"error": "database doesn't exist"}), 500
+            else:
+                jsonify({"error": str(err)}), 500
+
+        mycursor = cnx.cursor()
+
+        mycursor.execute(
+            """
+            SELECT track_id FROM songs
+            WHERE cluster_id = %s
+            ORDER BY RAND()
+            LIMIT 500
+            """,
+            (cluster_index,)
+        )
+        candidate_ids = [row[0] for row in mycursor.fetchall()] # List of IDs
+
+        popular_tracks = []
+        for track_id in candidate_ids:
+            popularity = get_spotify_popularity(track_id, token)
+            if popularity > 75:
+                popular_tracks.append(track_id)
+            if len(popular_tracks) == 50:
+                break
+
+        return popular_tracks.json(), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    
+def get_spotify_popularity(track_id, token):
+    url = f"https://api.spotify.com/v1/tracks/{track_id}"
+    headers = {
+            "Authoriation": f"Bearer {token}"
+    }
 
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("popularity", 0) # returns popularity of 0 if it cant be found
+    else:
+        return 0
+
+def get_latest_model():
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    model_uri = "runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
+    return mlflow.sklearn.load_model(model_uri)
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
