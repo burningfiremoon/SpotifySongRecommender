@@ -9,15 +9,13 @@ function UserPlaylists() {
     const [selectedPlaylists, setSelectedPlaylists] = useState([]);
     const [token, setToken] = useState("");
 
-    // Getting token
+    // Getting token this might need to be async
     useEffect(() => {
-        console.log("Getting token");
         const storedToken = sessionStorage.getItem("spotify_access_token");
 
         if (storedToken) {
             setToken(storedToken);
         } else {
-            console.log("No token found");
             return(<p>No token found</p>)
         }
     }, []);
@@ -65,11 +63,11 @@ function UserPlaylists() {
     }
 
     const generateJson = async (playlists, _token = token) => {
-        const batchSize = 100;
+        const batchSize = 99;
 
         // All song Ids and popularity is generated and stored
         try {
-            const allTracks = await Promise.all(
+            const allTracks = (await Promise.all(
                 playlists.map(async (playlist) =>{
                     const res = await fetch(
                         `https://api.spotify.com/v1/playlists/${playlist.id}/tracks?fields=total,limit,offset,items(track(id,popularity))`,
@@ -79,17 +77,16 @@ function UserPlaylists() {
                     }
                     );
                     const data = await res.json();
-                    return {
-                        tracks: data.items.map((item) => item.track),
-                    };
+                    return data.items.map((item) => item.track);
                 })
-            );
+            )).flat();
             // console.log("All tracks:", allTracks)
             // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
             let allAudioFeatures = [];
             for (let i=0; i < allTracks.length; i += batchSize){
                 const batch = allTracks.slice(i, i + batchSize);
                 const idsParam = batch.map(allTracks => allTracks.id).join(',');
+                console.log(`This is idsParam: ${idsParam}`)
 
                 const res = await fetch(`https://api.spotify.com/v1/audio-features?ids=${idsParam}`,{
                     headers: {
