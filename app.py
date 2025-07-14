@@ -22,6 +22,23 @@ REDIRECT_URI = "http://127.0.0.1:5173/callback"
 MLFLOW_TRACKING_URI="http://ec2-3-148-231-10.us-east-2.compute.amazonaws.com:5000/"
 LATEST_MINIBATCH_KMEANS_MODEL = '280ab65dc8e0410ab88d110d5b010100'
 
+def get_spotify_popularity(track_id, token):
+    url = f"https://api.spotify.com/v1/tracks/{track_id}"
+    headers = {
+            "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("popularity", 0) # returns popularity of 0 if it cant be found
+    else:
+        return 0
+
+def get_latest_model():
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    model_uri = f"runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
+    return mlflow.sklearn.load_model(model_uri)
+
 @app.route("/")
 def home():
     return "Flask backend is Running"
@@ -62,10 +79,11 @@ def generate_playlist():
         if not data:
             return jsonify({"error": "No Data Provided"}), 400
         
+        listOfSongs = data.get("listOfSongs")
         token = data.get("token")
         
         # Convert JSON to data frame
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(listOfSongs)
         features = [
             'tempo', 'loudness', 'energy', 'danceability', 'liveness',
             'speechiness', 'acousticness', 'instrumentalness', 'valence'
@@ -94,11 +112,11 @@ def generate_playlist():
         )
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                jsonify({"error": "Something is wrong with user name and password"}), 500
+                return jsonify({"error": "Something is wrong with user name and password"}), 500
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                jsonify({"error": "database doesn't exist"}), 500
+                return jsonify({"error": "database doesn't exist"}), 500
             else:
-                jsonify({"error": str(err)}), 500
+                return jsonify({"error": str(err)}), 500
 
         mycursor = cnx.cursor()
 
@@ -113,35 +131,20 @@ def generate_playlist():
         )
         candidate_ids = [row[0] for row in mycursor.fetchall()] # List of IDs
 
+        cnx.close()
+
         popular_tracks = []
         for track_id in candidate_ids:
             popularity = get_spotify_popularity(track_id, token)
-            if popularity > 75:
+            if popularity > 50:
                 popular_tracks.append(track_id)
             if len(popular_tracks) == 50:
                 break
 
-        return popular_tracks.json(), 200
+        return jsonify({'Generated_Songs': popular_tracks}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-def get_spotify_popularity(track_id, token):
-    url = f"https://api.spotify.com/v1/tracks/{track_id}"
-    headers = {
-            "Authoriation": f"Bearer {token}"
-    }
-
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json().get("popularity", 0) # returns popularity of 0 if it cant be found
-    else:
-        return 0
-
-def get_latest_model():
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-    model_uri = "runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
-    return mlflow.sklearn.load_model(model_uri)
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
