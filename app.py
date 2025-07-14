@@ -73,6 +73,7 @@ def exchange_token():
 
 @app.route("/generate", methods=['POST'])
 def generate_playlist():
+    print("Hello we made it here!!!")
     try:
         # Get data from frontend
         data = request.get_json()

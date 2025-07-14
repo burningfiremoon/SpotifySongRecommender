@@ -80,12 +80,17 @@ function UserPlaylists() {
                     return data.items.map((item) => item.track);
                 })
             )).flat();
-            // console.log("All tracks:", allTracks)
+            console.log("All tracks:", allTracks)
             // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
             let allAudioFeatures = [];
             for (let i=0; i < allTracks.length; i += batchSize){
                 const batch = allTracks.slice(i, i + batchSize);
-                const idsParam = batch.map(allTracks => allTracks.id).join(',');
+                console.log("This is batch")
+                console.log(batch)
+                const idsParam = batch
+                    .filter((track) => track && track.id)
+                    .map(allTracks => allTracks.id)
+                    .join(',');
                 console.log(`This is idsParam: ${idsParam}`)
 
                 const res = await fetch(`https://api.spotify.com/v1/audio-features?ids=${idsParam}`,{
