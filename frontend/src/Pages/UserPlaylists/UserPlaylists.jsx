@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import './UserPlaylists.css'
 import ButtonLink from '../../Componenets/ButtonLink';
 import { Route } from 'react-router-dom';
+import axios from 'axios';
 
 function UserPlaylists() {
     const [playlists, setPlaylists] = useState([]);
@@ -62,8 +63,8 @@ function UserPlaylists() {
         }
     }
 
-    const generateJson = async (playlists, _token = token) => {
-        const batchSize = 99;
+    const generateJson = async (playlists) => {
+        const batchSize = 2;
 
         // All song Ids and popularity is generated and stored
         try {
@@ -72,7 +73,7 @@ function UserPlaylists() {
                     const res = await fetch(
                         `https://api.spotify.com/v1/playlists/${playlist.id}/tracks?fields=total,limit,offset,items(track(id,popularity))`,
                         {headers:{
-                            Authorization: `Bearer ${_token}`,
+                            Authorization: `Bearer ${token}`,
                         },
                     }
                     );
@@ -82,28 +83,67 @@ function UserPlaylists() {
             )).flat();
             console.log("All tracks:", allTracks)
             // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
-            let allAudioFeatures = [];
-            for (let i=0; i < allTracks.length; i += batchSize){
-                const batch = allTracks.slice(i, i + batchSize);
-                console.log("This is batch")
-                console.log(batch)
-                const idsParam = batch
-                    .filter((track) => track && track.id)
-                    .map(allTracks => allTracks.id)
-                    .join(',');
-                console.log(`This is idsParam: ${idsParam}`)
 
-                const res = await fetch(`https://api.spotify.com/v1/audio-features?ids=${idsParam}`,{
-                    headers: {
-                        Authorization: `Bearer ${_token}`,
-                    },
-                });
+            // const idsParam = batch
+            //     .filter((track) => track && track.id)
+            //     .map(allTracks => allTracks.id)
+            //     .join(',');
 
-                const data = await res.json();
-                allAudioFeatures.push(...data.audio_features);
-            }
+            const batch = allTracks
+                .slice(1, 10)
+                .filter((track) => track && track.id);
+                console.log("This is batch:", batch)
+            
 
-            sendJsonToBackend(allAudioFeatures);
+            let config = {
+                method: 'get',
+                maxBodyLength: Infinity,
+                url: 'https://api.reccobeats.com/v1/track?ids=8c438304-e436-43ea-9fe6-5e17199c2dfd',
+                headers: { 
+                    'Accept': 'application/json'
+                }
+            };
+
+            axios.request(config)
+            .then((response) => {
+            console.log(JSON.stringify(response.data));
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+            // const allAudioFeatures = async (allTracks) => {
+            //     let allFeatures = [];
+            //     try{
+            //         for (const track of batch){
+            //             console.log(track.id);
+            //             const config = {
+            //                 method: 'get',
+            //                 maxBodyLength: Infinity,
+            //                 url: `https://api.reccobeats.com/v1/track/${track.id}/audio-features`,
+            //                 headers: {
+            //                     'Accept': 'application/json'
+            //                 }
+            //             };
+            //             const res = await axios.request(config);
+            //             console.log(`Features for ${track.id}`, res.data);
+
+            //             allFeatures.push({
+            //                 id: track.id,
+            //                 ...res.data
+            //             })
+            //         }
+
+            //     } catch (err) {
+            //         console.error('Error fetching:', err)
+            //     }
+            //     console.log("All Features:", allFeatures);
+            //     return allFeatures
+            // } 
+
+            // allAudioFeatures(allTracks).then(features => {
+            //     console.log("Features:", features);
+            //     sendJsonToBackend(allAudioFeatures);
+            // })
 
         } catch (err){
             console.error("Error generating playlist JSON:", err);
