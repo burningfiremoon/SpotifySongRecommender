@@ -81,7 +81,7 @@ function UserPlaylists() {
                     return data.items.map((item) => item.track);
                 })
             )).flat();
-            console.log("All tracks:", allTracks)
+            // console.log("All tracks:", allTracks)
             // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
 
             // const idsParam = batch
@@ -89,61 +89,77 @@ function UserPlaylists() {
             //     .map(allTracks => allTracks.id)
             //     .join(',');
 
-            const batch = allTracks
-                .slice(1, 10)
-                .filter((track) => track && track.id);
-                console.log("This is batch:", batch)
-            
 
+            // Current steps to program:
+            /* 
+            1. spotify id -> raccobeat id
+                /v1/track?ids=4ogUNsrAiv68W9LnD6mJJm,3gPYoFtn70aTgl546XVSET
+                1 - 40
+            2. Take Raccobeat id
+            3. get audio features
+                /v1/track/367e626c-6661-42df-9709-321ebea2403d/audio-features'
+            4. send it to the backend
+            */
+            // translate spotify id -> raccobeat id
+            // doing for 20 random songs
+            const getRandomTracks = (allTracks) => {
+                const shuffled = [...allTracks].sort(() => 0.5 - Math.random()).filter((track) => track && track.id);
+                return shuffled.slice(0, 20);
+            }
+
+            async function fetchAudioFeatures(ids) {
+                const audioFeatures = [];
+
+                for (const id of ids){
+                    try {
+                        const config = {
+                            method: 'get',
+                            maxBodyLength: Infinity,
+                            url: `https://api.reccobeats.com/v1/track/${id}/audio-features`,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        };
+
+                        const response = await axios.request(config);
+
+                        audioFeatures.push({id,data: response.data });
+                    } catch (error){
+                        console.error(`Failed to fetch audio features`, error);
+                    }
+                }
+                return audioFeatures;
+            }
+
+            const random20 = getRandomTracks(allTracks);
+
+            const idParam = random20.map(track => track.id).join(',');
+            console.log(idParam);
             let config = {
                 method: 'get',
                 maxBodyLength: Infinity,
-                url: 'https://api.reccobeats.com/v1/track?ids=8c438304-e436-43ea-9fe6-5e17199c2dfd',
-                headers: { 
+                url: `https://api.reccobeats.com/v1/track?ids=${idParam}`,
+                headers: {
                     'Accept': 'application/json'
                 }
             };
 
-            axios.request(config)
-            .then((response) => {
-            console.log(JSON.stringify(response.data));
-            })
-            .catch((error) => {
-            console.log(error);
+            const response = await axios.request(config);
+
+            const ids = response.data.content.map(track => track.id);
+            console.log("This is ids:",ids);
+
+            const audioFeatures = await fetchAudioFeatures(ids);
+            console.log("Audio features: ", audioFeatures);
+
+            await fetch("http://127.0.0.1:5000/generate",{
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    audioFeatures,
+                    token: token,
+                }),
             });
-            // const allAudioFeatures = async (allTracks) => {
-            //     let allFeatures = [];
-            //     try{
-            //         for (const track of batch){
-            //             console.log(track.id);
-            //             const config = {
-            //                 method: 'get',
-            //                 maxBodyLength: Infinity,
-            //                 url: `https://api.reccobeats.com/v1/track/${track.id}/audio-features`,
-            //                 headers: {
-            //                     'Accept': 'application/json'
-            //                 }
-            //             };
-            //             const res = await axios.request(config);
-            //             console.log(`Features for ${track.id}`, res.data);
-
-            //             allFeatures.push({
-            //                 id: track.id,
-            //                 ...res.data
-            //             })
-            //         }
-
-            //     } catch (err) {
-            //         console.error('Error fetching:', err)
-            //     }
-            //     console.log("All Features:", allFeatures);
-            //     return allFeatures
-            // } 
-
-            // allAudioFeatures(allTracks).then(features => {
-            //     console.log("Features:", features);
-            //     sendJsonToBackend(allAudioFeatures);
-            // })
 
         } catch (err){
             console.error("Error generating playlist JSON:", err);
