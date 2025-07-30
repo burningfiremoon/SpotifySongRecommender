@@ -152,14 +152,17 @@ function UserPlaylists() {
             const audioFeatures = await fetchAudioFeatures(ids);
             console.log("Audio features: ", audioFeatures);
 
-            await fetch("http://127.0.0.1:5000/generate",{
+            const reccomendedSongs = await fetch("http://127.0.0.1:5000/generate",{
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    audioFeatures,
+                    listOfSongs: audioFeatures,
                     token: token,
                 }),
             });
+
+            const data = await reccomendedSongs.json()
+            console.log(data)
 
         } catch (err){
             console.error("Error generating playlist JSON:", err);

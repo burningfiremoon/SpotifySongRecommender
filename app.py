@@ -9,6 +9,7 @@ import pandas as pd
 import mysql.connector
 from mysql.connector import errorcode
 from sklearn.pipeline import Pipeline
+import random
 load_dotenv()
 
 app = Flask(__name__)
@@ -73,18 +74,20 @@ def exchange_token():
 
 @app.route("/generate", methods=['POST'])
 def generate_playlist():
-    print("Hello we made it here!!!")
+    print("Entering Backend")
     try:
         # Get data from frontend
         data = request.get_json()
         if not data:
             return jsonify({"error": "No Data Provided"}), 400
         
-        listOfSongs = data.get("listOfSongs")
+        listOfSongs = data.get("listOfSongs", [])
         token = data.get("token")
+
+        audio_features = [song['data'] for song in listOfSongs if 'data' in song]
         
         # Convert JSON to data frame
-        df = pd.DataFrame(listOfSongs)
+        df = pd.DataFrame(audio_features)
         features = [
             'tempo', 'loudness', 'energy', 'danceability', 'liveness',
             'speechiness', 'acousticness', 'instrumentalness', 'valence'
@@ -98,11 +101,12 @@ def generate_playlist():
         X_average = X.mean().to_frame().T
 
         cluster_index = int(model.predict(X_average)[0])
+        print(f"Cluster_Index: {cluster_index}")
 
         # mySQL
         SQLid = os.getenv("SQL_ID")
         SQLpassword = os.getenv("SQL_PASSWORD")
-
+        print("Entering mySQL")
         try:
             cnx = mysql.connector.connect(
             user = SQLid,
@@ -118,30 +122,50 @@ def generate_playlist():
                 return jsonify({"error": "database doesn't exist"}), 500
             else:
                 return jsonify({"error": str(err)}), 500
-
         mycursor = cnx.cursor()
+        print("got cursor")
+        # mycursor.execute(
+        #     """
+        #     SELECT COUNT(*) FROM songs WHERE cluster_id = %s
+        #     """,
+        #     (cluster_index,)
+        # )
 
+        # total = mycursor.fetchone()[0]
+
+        # offset = random.randint(0, max(total - 500, 0))
+
+        # mycursor.execute(
+        #     """
+        #     SELECT track_id FROM songs
+        #     WHERE cluster_id = %s
+        #     LIMIT 500
+        #     OFFSET = %s
+        #     """,
+        #     (cluster_index, offset)
+        # )
         mycursor.execute(
             """
             SELECT track_id FROM songs
-            WHERE cluster_id = %s
+            WHERE cluster_index = %s
             ORDER BY RAND()
             LIMIT 500
             """,
             (cluster_index,)
         )
+
+        print("got songs")
         candidate_ids = [row[0] for row in mycursor.fetchall()] # List of IDs
-
         cnx.close()
-
+        print("Got list of songs")
         popular_tracks = []
         for track_id in candidate_ids:
             popularity = get_spotify_popularity(track_id, token)
-            if popularity > 50:
+            if popularity > 5:
                 popular_tracks.append(track_id)
             if len(popular_tracks) == 50:
                 break
-
+        print(popular_tracks)
         return jsonify({'Generated_Songs': popular_tracks}), 200
 
     except Exception as e:
