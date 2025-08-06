@@ -149,7 +149,7 @@ def generate_playlist():
             SELECT track_id FROM songs
             WHERE cluster_index = %s
             ORDER BY RAND()
-            LIMIT 500
+            LIMIT 750
             """,
             (cluster_index,)
         )
@@ -161,7 +161,7 @@ def generate_playlist():
         popular_tracks = []
         for track_id in candidate_ids:
             popularity = get_spotify_popularity(track_id, token)
-            if popularity > 5:
+            if popularity > 35:
                 popular_tracks.append(track_id)
             if len(popular_tracks) == 50:
                 break

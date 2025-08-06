@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import { useEffect, useState } from 'react'
 import './UserPlaylists.css'
 import ButtonLink from '../../Componenets/ButtonLink';
@@ -9,6 +9,8 @@ function UserPlaylists() {
     const [playlists, setPlaylists] = useState([]);
     const [selectedPlaylists, setSelectedPlaylists] = useState([]);
     const [token, setToken] = useState("");
+    const [generatedSongs, setGeneratedSongs] = useState([])
+    const [trackDetails, setTrackDetails] = useState([])
 
     // Getting token this might need to be async
     useEffect(() => {
@@ -62,6 +64,24 @@ function UserPlaylists() {
             console.log('Error sending JSON', err);
         }
     }
+
+    // Function to fetch the track details
+    const fetchTrackDetails = async (ids) => {
+        try {
+            const idParam = ids.join(",")
+            const response = await fetch(`https://api.spotify.com/v1/tracks?ids=${idParam}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            
+            const data = await response.json()
+            setTrackDetails(data.tracks)
+
+        } catch(err) {
+            console.error("Error fetching track details:", err)
+        }
+    } 
 
     const generateJson = async (playlists) => {
         const batchSize = 2;
@@ -162,12 +182,17 @@ function UserPlaylists() {
             });
 
             const data = await reccomendedSongs.json()
+            const songs = data.Generated_Songs || []
             console.log(data)
+            setGeneratedSongs(songs)
+
+            await fetchTrackDetails(songs)
+            console.log("Track Details:", trackDetails);
+
 
         } catch (err){
             console.error("Error generating playlist JSON:", err);
         };
-
     }
 
   return (
@@ -192,7 +217,22 @@ function UserPlaylists() {
                 ))}
             </ul>
         </div>
-        <ButtonLink route={'/loading'} onClick={() => generateJson(selectedPlaylists)}>Generate</ButtonLink>
+        {/* <ButtonLink route={'/loading'} onClick={() => generateJson(selectedPlaylists)}>Generate</ButtonLink> */}
+        <button onClick={() => generateJson(selectedPlaylists)}>Generate</button>
+        <ul>
+            {trackDetails.map((track) => (
+                <li key={track.id}>
+                    {track?.album?.images?.[0]?.url ? (
+                        <div>
+                            <img src={track.album.images[0].url} alt="Album Cover" width={60} />
+                            <p><strong>{track.name}</strong> by {track.artists.map((artist) => artist.name).join(", ")}</p>
+                        </div>
+                    ) : (
+                        <p>No image available</p>
+                    )}
+                </li>
+            ))}
+        </ul>
     </>
   );
 }
