@@ -23,17 +23,21 @@ REDIRECT_URI = "http://127.0.0.1:5173/callback"
 MLFLOW_TRACKING_URI="http://ec2-3-148-231-10.us-east-2.compute.amazonaws.com:5000/"
 LATEST_MINIBATCH_KMEANS_MODEL = '280ab65dc8e0410ab88d110d5b010100'
 
-def get_spotify_popularity(track_id, token):
-    url = f"https://api.spotify.com/v1/tracks/{track_id}"
+def get_spotify_popularity_batch(track_ids, token):
     headers = {
             "Authorization": f"Bearer {token}"
     }
-
+    ids_param = ','.join(track_ids)
+    url = f"https://api.spotify.com/v1/tracks?ids={ids_param}"
     response = requests.get(url, headers=headers)
+    popularities = []
     if response.status_code == 200:
-        return response.json().get("popularity", 0) # returns popularity of 0 if it cant be found
+        track_data = response.json().get("tracks", [])
+        for track in track_data:
+            popularities.append([track["id"], track.get("popularity", 0)])
+        return popularities
     else:
-        return 0
+        return []
 
 def get_latest_model():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -124,32 +128,13 @@ def generate_playlist():
                 return jsonify({"error": str(err)}), 500
         mycursor = cnx.cursor()
         print("got cursor")
-        # mycursor.execute(
-        #     """
-        #     SELECT COUNT(*) FROM songs WHERE cluster_id = %s
-        #     """,
-        #     (cluster_index,)
-        # )
-
-        # total = mycursor.fetchone()[0]
-
-        # offset = random.randint(0, max(total - 500, 0))
-
-        # mycursor.execute(
-        #     """
-        #     SELECT track_id FROM songs
-        #     WHERE cluster_id = %s
-        #     LIMIT 500
-        #     OFFSET = %s
-        #     """,
-        #     (cluster_index, offset)
-        # )
+       
         mycursor.execute(
             """
             SELECT track_id FROM songs
             WHERE cluster_index = %s
             ORDER BY RAND()
-            LIMIT 750
+            LIMIT 1500
             """,
             (cluster_index,)
         )
@@ -158,13 +143,23 @@ def generate_playlist():
         candidate_ids = [row[0] for row in mycursor.fetchall()] # List of IDs
         cnx.close()
         print("Got list of songs")
+
+        batch_size = 50
+
         popular_tracks = []
-        for track_id in candidate_ids:
-            popularity = get_spotify_popularity(track_id, token)
-            if popularity > 35:
-                popular_tracks.append(track_id)
+
+        for i in range(0, len(candidate_ids), batch_size):
+            batch = candidate_ids[i:i+batch_size]
+            tracks = get_spotify_popularity_batch(batch, token)
+
+            for track_id, popularity in tracks:
+                if popularity > 35:
+                    popular_tracks.append(track_id)
+                if len(popular_tracks) == 50:
+                    break
             if len(popular_tracks) == 50:
                 break
+        
         print(popular_tracks)
         return jsonify({'Generated_Songs': popular_tracks}), 200
 
