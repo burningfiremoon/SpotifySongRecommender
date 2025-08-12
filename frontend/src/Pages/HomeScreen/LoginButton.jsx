@@ -23,5 +23,5 @@ export default function LoginButton() {
     window.location.href = authUrl;
   };
 
-  return <button onClick={handleLogin}>Login withe Spotify</button>;
+  return <button onClick={handleLogin}>Login With Spotify</button>;
 }

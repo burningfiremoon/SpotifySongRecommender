@@ -101,15 +101,6 @@ function UserPlaylists() {
                     return data.items.map((item) => item.track);
                 })
             )).flat();
-            // console.log("All tracks:", allTracks)
-            // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
-
-            // const idsParam = batch
-            //     .filter((track) => track && track.id)
-            //     .map(allTracks => allTracks.id)
-            //     .join(',');
-
-
             // Current steps to program:
             /* 
             1. spotify id -> raccobeat id
@@ -123,7 +114,8 @@ function UserPlaylists() {
             // translate spotify id -> raccobeat id
             // doing for 20 random songs
             const getRandomTracks = (allTracks) => {
-                const shuffled = [...allTracks].sort(() => 0.5 - Math.random()).filter((track) => track && track.id);
+                const shuffled = [...allTracks].sort(() => 0.45 - Math.random()).filter((track) => track && track.id);
+                // () => 0.5 - Math.random -> [-0.5, 0.5]
                 return shuffled.slice(0, 20);
             }
 

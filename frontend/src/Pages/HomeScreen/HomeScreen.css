@@ -1,0 +1,57 @@
+.homepage {
+    min-height: 100vh;
+    background-color: black;
+    color:#fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 2rem;
+    position: relative;
+}
+
+.homepage_topbar{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+}
+
+.homepage_logo{
+    width: 70px;
+    height: 70px;
+}
+
+.homepage_brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+}
+
+.homepage_content {
+    max-width: 64rem;
+}
+
+.homepage_title {
+    text-align: left;
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.homepage_subtitleAndButton{
+    display: flex;
+    justify-content: space-between;
+    margin-top: -1.5rem;
+}
+
+.homepage_subtitle {
+    text-align: left;
+    font-size: 2rem;
+    color: #d1d5db;
+}
+
+.homepage_button{
+    margin-top: 2rem;
+}
