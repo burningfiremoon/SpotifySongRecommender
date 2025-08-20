@@ -1,10 +1,13 @@
-import time
+import time, mlflow
 from sklearn.cluster import KMeans
 import joblib
 import boto3
 import mysql.connector
 from mysql.connector.cursor import MySQLCursor
 from enum import Enum
+
+MLFLOW_TRACKING_URI="http://ec2-3-148-231-10.us-east-2.compute.amazonaws.com:5000/"
+LATEST_MINIBATCH_KMEANS_MODEL = '280ab65dc8e0410ab88d110d5b010100'
 
 class Track:
     track_id:str
@@ -14,6 +17,11 @@ class Track:
         self.track_id = track_id
         self.song_name = song_name
         self.artist_name = artist_name
+
+def get_latest_model():
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    model_uri = f"runs:/{LATEST_MINIBATCH_KMEANS_MODEL}/minibatch_kmeans_model"
+    return mlflow.sklearn.load_model(model_uri)
 
 def generate_file_name(model: KMeans, directory: str = "./models") -> str:
     timeStamp = time.strftime("%Y%m%d-%H%M")
