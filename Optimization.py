@@ -78,11 +78,46 @@ def requestAccessToken(client_id: str, code: str, verifier: str, redirect_uri):
 
     return tokenInfo
 
+def getPlaylistTracks(playlistID: str, token: str):
+    header = {
+        "Authorization": f"Bearer {token}"
+    }
+    url = f"https://api.spotify.com/v1/playlists/{playlistID}?fields=tracks.items(track(href,id,name,popularity))"
+    response = requests.get(url, headers=header)
+    if response.status_code == 200:
+        data = response.json()
+        tracks = [
+            item["track"] 
+            for item in data.get("tracks", {}).get("items", []) 
+            if item.get("track")
+        ]
+        return tracks
+    else:
+        raise Exception(
+            f"Spotify API error {response.status_code}: {response.text}"
+        )
+    
+def getPlaylists(token: str):
+    header = {
+        "Authorization": f"Bearer {token}"
+    }
+    url = f"https://api.spotify.com/v1/me/playlists?limit=50"
+    response = requests.get(url, headers=header)
+    if response.status_code == 200:
+        data = response.json()
+        playlists = data.get("items", [])
+        return playlists
+    else:
+        raise Exception(
+            f"Spotify API error {response.status_code}: {response.text}"
+        )
+
 if __name__ == '__main__':
     CLIENT_ID = os.getenv('JADCLIENT_ID')
     CLIENT_SECRET = os.getenv('JADCLIENT_SECRET')
     REDIRECT_URI = "http://127.0.0.1:5173/callback"
     VERIFIER = generateCodeVerifier(128)
+    TOKEN = None
     # starts the local server to catch redirect
     server = HTTPServer(("127.0.0.1", 5173), RedirectHandler)
 
@@ -100,9 +135,32 @@ if __name__ == '__main__':
     
     server.shutdown()
 
-    requestAccessToken(client_id=CLIENT_ID, code=AUTH_CODE, redirect_uri=REDIRECT_URI, verifier=VERIFIER)
+    tokenInfo = requestAccessToken(client_id=CLIENT_ID, code=AUTH_CODE, redirect_uri=REDIRECT_URI, verifier=VERIFIER)
+    TOKEN = tokenInfo['access_token']
     # after here we have access token in ACCESS_TOKEN
     print("We made it")
+
+
+    """
+    1. Get spotify playlist
+    2. Get 20-40 tracks?
+        a. Time how long it takes to get # of tracks
+    3. run through algorithm, filter through popularity
+    4. average features of songs left
+    5. print into a csv file for further data analysis
+    """
+
+    "get test playlist and track?"
+    playlists = getPlaylists(token=TOKEN)
+    for playlist in playlists:
+        print(playlist['name'], ":", playlist['id'])
+
+    playlistID = input("Enter playlist ID: ")
+
+    tracks = getPlaylistTracks(playlistID=playlistID, token=TOKEN)
+
+    "recco beats get audio features"
+
 
 
     
