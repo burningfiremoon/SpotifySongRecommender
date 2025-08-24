@@ -9,6 +9,7 @@ import CreatePlaylist from './Pages/CreatePlaylist'
 import UserPlaylists from './Pages/UserPlaylists/UserPlaylists'
 import Loading from './Pages/Loading'
 import HomeScreen from './Pages/HomeScreen/HomeScreen'
+import ResultsPage from './Pages/Results/ResultsPage'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/playlist" element={<CreatePlaylist/>}/>
           <Route path="/UserPlaylists" element={<UserPlaylists/>}/>
           <Route path='/loading' element={<Loading/>}/>
+          <Route path='/results' element={<ResultsPage/>}/>
         </Routes>
       </Router>
     </>

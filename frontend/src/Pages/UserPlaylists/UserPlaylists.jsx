@@ -2,7 +2,7 @@ import React, { use } from 'react'
 import { useEffect, useState } from 'react'
 import './UserPlaylists.css'
 import ButtonLink from '../../Componenets/ButtonLink';
-import { Route } from 'react-router-dom';
+import { Navigate, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function UserPlaylists() {
@@ -11,6 +11,7 @@ function UserPlaylists() {
     const [token, setToken] = useState("");
     const [generatedSongs, setGeneratedSongs] = useState([])
     const [trackDetails, setTrackDetails] = useState([])
+    const navigate = useNavigate()
 
     // Getting token this might need to be async
     useEffect(() => {
@@ -76,7 +77,11 @@ function UserPlaylists() {
             });
             
             const data = await response.json()
+            // Set track details into session storage
+            sessionStorage.setItem("trackDetails", JSON.stringify(data.tracks))
             setTrackDetails(data.tracks)
+            console.log(data.tracks)
+            navigate("/results")
 
         } catch(err) {
             console.error("Error fetching track details:", err)
@@ -101,6 +106,15 @@ function UserPlaylists() {
                     return data.items.map((item) => item.track);
                 })
             )).flat();
+            // console.log("All tracks:", allTracks)
+            // Fetch to get song_id, tempo, loudness, energy, danceability, liveness, speechiness, acousticness, instrumentalness, valence
+
+            // const idsParam = batch
+            //     .filter((track) => track && track.id)
+            //     .map(allTracks => allTracks.id)
+            //     .join(',');
+
+
             // Current steps to program:
             /* 
             1. spotify id -> raccobeat id
@@ -114,8 +128,7 @@ function UserPlaylists() {
             // translate spotify id -> raccobeat id
             // doing for 20 random songs
             const getRandomTracks = (allTracks) => {
-                const shuffled = [...allTracks].sort(() => 0.45 - Math.random()).filter((track) => track && track.id);
-                // () => 0.5 - Math.random -> [-0.5, 0.5]
+                const shuffled = [...allTracks].sort(() => 0.5 - Math.random()).filter((track) => track && track.id);
                 return shuffled.slice(0, 20);
             }
 
@@ -179,7 +192,6 @@ function UserPlaylists() {
             setGeneratedSongs(songs)
 
             await fetchTrackDetails(songs)
-            console.log("Track Details:", trackDetails);
 
 
         } catch (err){
@@ -211,20 +223,6 @@ function UserPlaylists() {
         </div>
         {/* <ButtonLink route={'/loading'} onClick={() => generateJson(selectedPlaylists)}>Generate</ButtonLink> */}
         <button onClick={() => generateJson(selectedPlaylists)}>Generate</button>
-        <ul>
-            {trackDetails.map((track) => (
-                <li key={track.id}>
-                    {track?.album?.images?.[0]?.url ? (
-                        <div>
-                            <img src={track.album.images[0].url} alt="Album Cover" width={60} />
-                            <p><strong>{track.name}</strong> by {track.artists.map((artist) => artist.name).join(", ")}</p>
-                        </div>
-                    ) : (
-                        <p>No image available</p>
-                    )}
-                </li>
-            ))}
-        </ul>
     </>
   );
 }
