@@ -73,7 +73,7 @@ def requestAccessToken(client_id: str, code: str, verifier: str, redirect_uri):
         raise Exception(f"Token request failed: {response.status_code},{response.text}")
     
     tokenInfo = response.json()
-    print(tokenInfo)
+    # print(tokenInfo)
     ACCESS_TOKEN = tokenInfo["access_token"]
 
     return tokenInfo
@@ -159,7 +159,39 @@ if __name__ == '__main__':
 
     tracks = getPlaylistTracks(playlistID=playlistID, token=TOKEN)
 
+    # print("This is tracks:\n",tracks)
     "recco beats get audio features"
+    # ====================================
+    # max 40 songs
+    url = "https://api.reccobeats.com/v1/track?ids="
+    payload = {}
+    headers = {
+        'Accept': 'application/json'
+    }
+    reccoIDs = []
+    index = 0
+    for track in tracks:
+        if index == 39:
+            print(url)
+            response = requests.request("GET", url, headers=headers, data=payload)
+            if response.status_code == 200:
+                # Work on this!!
+                pass
+            
+            reccoIDs.append(response)
+            url = "https://api.reccobeats.com/v1/track?ids="
+            index = 0
+        url = url + track['id'] + ","
+        index += 1
+    
+    response = requests.request("GET", url, headers=headers, data=payload)
+    reccoIDs.append(response)
+
+    
+    print("This is reccoIDs:\n",reccoIDs)
+
+
+    # ====================================S
 
 
 
