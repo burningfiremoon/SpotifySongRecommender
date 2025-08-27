@@ -4,6 +4,8 @@ import './UserPlaylists.css'
 import ButtonLink from '../../Componenets/ButtonLink';
 import { Navigate, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import rightArrow from '../../assets/WhiteArrowRightCircle.png'
+import leftArrow from '../../assets/WhiteArrowLeftCircle.png'
 
 function UserPlaylists() {
     const [playlists, setPlaylists] = useState([]);
@@ -201,25 +203,35 @@ function UserPlaylists() {
 
   return (
     <>
-        <h2>Loaded Playlists</h2>
-        <div>
-            <ul>
-                {playlists.map((playlist)=>(
-                    <li key={playlist.id}>
-                        <strong>{playlist.name}</strong>
-                        <button onClick={() => selectPlaylist(playlist)}>Add Button</button>
-                    </li>
-                ))}
-            </ul>
-            <ul>
-                {selectedPlaylists.map((playlist)=>(
-                    <li key={playlist.id}>
-                        <strong>{playlist.name}</strong>
-                        <p>{playlist.id}</p>
-                        <button onClick={() => unselectPlaylist(playlist)}>Minus Button</button>
-                    </li>
-                ))}
-            </ul>
+        <h1>Insert Page Title</h1>
+        <div className='PlaylistsContainer'>
+            <div className='YourPlaylists'>
+                <h2>Your Playlists</h2>
+                <ul>
+                    {playlists.map((playlist)=>(
+                        <li key={playlist.id} className='YourPlaylistItem'>
+                            <strong>{playlist.name}</strong>
+                            <button onClick={() => selectPlaylist(playlist)}>
+                                <img src={rightArrow} alt='Logo' className='AddButtonIcon'/>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className='SelectedPlaylists'>
+                <h2>Selected Playlists</h2>
+                <ul>
+                    {selectedPlaylists.map((playlist)=>(
+                        <li key={playlist.id} className='SelectedPlaylistItem'>
+                            {/* <p>{playlist.id}</p> */}
+                            <button onClick={() => unselectPlaylist(playlist)}>
+                                <img src={leftArrow} alt='Logo' className='MinusButtonIcon'/>
+                            </button>
+                            <strong>{playlist.name}</strong>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
         {/* <ButtonLink route={'/loading'} onClick={() => generateJson(selectedPlaylists)}>Generate</ButtonLink> */}
         <button onClick={() => generateJson(selectedPlaylists)}>Generate</button>
