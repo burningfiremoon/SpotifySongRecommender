@@ -14,12 +14,13 @@
     border-style: solid;
     border-color: blue;
     border-width: 2px;
-    background-color: darkgray;
+    background-color: #2f2f2f;
     overflow-y: auto;
 }
 .PlaylistsContainer h2 {
     top: 0;
     position: sticky;
+    text-decoration: underline;
 }
 
 .PlaylistsContainer ul {
@@ -29,8 +30,14 @@
 /* Not Selected Playlists */
 
 .YourPlaylistItem{
-    position: inherit;
-    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3c3c3c;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    width: 90%;
 }
 
 .YourPlaylistItem button{
@@ -49,8 +56,14 @@
 /* Selected Playlists */
 
 .SelectedPlaylistItem{
-    position: inherit;
-    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3c3c3c;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    width: 90%;
 }
 
 .SelectedPlaylistItem button{
